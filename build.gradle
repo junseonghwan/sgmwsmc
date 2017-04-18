@@ -1,0 +1,58 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+//mainClassName = "image.experiments.LinearFeatureExperiment"
+//mainClassName = "image.experiments.EdgeFeatureExperiment"
+mainClassName = "knot.experiments.simulation.PerformanceExperiments"
+
+eclipse { 
+  classpath {
+    defaultOutputDir = file('bin')
+  }
+}
+
+repositories {
+  mavenCentral()
+  jcenter()
+  maven {
+    url "http://www.stat.ubc.ca/~bouchard/maven/"
+  }
+}
+
+dependencies {
+  //compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.39'
+  compile group: 'com.googlecode.combinatoricslib', name: 'combinatoricslib', version: '2.1'
+  compile group: 'gov.nih.imagej', name: 'imagej', version: '1.47'
+  compile group: 'ca.ubc.stat', name: 'bayonet', version: '2.3.21'
+  compile group: 'com.google.guava', name: 'guava', version: '15.0'
+  testCompile group: 'junit', name: 'junit', version: '4.11'
+  compile group: 'junit', name: 'junit', version: '4.11'
+  compile group: 'com.beust', name: 'jcommander', version: '1.30'
+  compile group: 'ca.ubc.stat', name: 'briefj', version: '2.3.5'
+  compile group: 'ca.ubc.stat', name: 'binc', version: '1.2.0'
+  compile group: 'rcaller', name: 'RCaller', version: '2.1.1'
+  compile 'net.sf.opencsv:opencsv:2.3'
+  compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24'
+  compile 'commons-io:commons-io:2.4'
+  compile 'org.apache.commons:commons-math3:3.3'
+  compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.2.1'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+
+artifacts {
+    archives jar
+    archives sourcesJar
+    archives javadocJar
+}
+
