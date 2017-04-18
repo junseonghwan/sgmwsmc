@@ -6,26 +6,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import knot.data.EllipticalKnot;
+import knot.data.Knot;
 import common.graph.GenericGraphMatchingState;
 import common.model.DoubletonDecisionModel;
 
-public class KnotDoubletonDecisionModel extends DoubletonDecisionModel<String, EllipticalKnot>
+public class KnotDoubletonDecisionModel<NodeType extends Knot> extends DoubletonDecisionModel<String, NodeType>
 {
 	public static final double H_SPAN = 100.0;
 
 	@Override
-  public List<Set<EllipticalKnot>> getDecisions(EllipticalKnot node,
-  		GenericGraphMatchingState<String, EllipticalKnot> state) {
+  public List<Set<NodeType>> getDecisions(NodeType node,
+  		GenericGraphMatchingState<String, NodeType> state) {
 		return getDecisions(node, state.getUnvisitedNodes(), state.getCoveredNodes(), state.getMatchings(), state.getNode2EdgeView());
   }
 
 	@Override
-  public List<Set<EllipticalKnot>> getDecisions(EllipticalKnot node,
-      List<EllipticalKnot> unvisitedNodes, Set<EllipticalKnot> coveredNodes,
-      List<Set<EllipticalKnot>> matching, Map<EllipticalKnot, Set<EllipticalKnot>> node2Matching) {
+  public List<Set<NodeType>> getDecisions(NodeType node,
+      List<NodeType> unvisitedNodes, Set<NodeType> coveredNodes,
+      List<Set<NodeType>> matching, Map<NodeType, Set<NodeType>> node2Matching) {
 
-		List<Set<EllipticalKnot>> decisions = new ArrayList<>();
+		List<Set<NodeType>> decisions = new ArrayList<>();
 		
 		if (coveredNodes.contains(node))
 		{
@@ -34,7 +34,7 @@ public class KnotDoubletonDecisionModel extends DoubletonDecisionModel<String, E
 			return decisions;
 		}
 
-		for (EllipticalKnot otherNode : unvisitedNodes)
+		for (NodeType otherNode : unvisitedNodes)
 		{
 			 // Caution: this if statement is needed in case the GraphMatchingState or its subclass does not remove candidate nodes from its state (see: BipartiteMatchingState and GraphMatchingState)
 			// under this decision model, covered nodes are not considered as a candidate
@@ -47,7 +47,7 @@ public class KnotDoubletonDecisionModel extends DoubletonDecisionModel<String, E
 			if (Math.abs(node.getNodeFeatures().getCount("x") - otherNode.getNodeFeatures().getCount("x")) > H_SPAN)
 				continue;
 
-			Set<EllipticalKnot> instance = new HashSet<>();
+			Set<NodeType> instance = new HashSet<>();
 			instance.add(otherNode);
 			decisions.add(instance);
 		}
