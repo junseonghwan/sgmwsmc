@@ -1,4 +1,4 @@
-package simulation.experiments;
+package knots.experiments.simulation;
 
 import java.util.ArrayList;
 import java.util.HashSet;

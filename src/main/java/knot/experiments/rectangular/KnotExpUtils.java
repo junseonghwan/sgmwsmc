@@ -13,7 +13,6 @@ import knot.data.Knot;
 import knot.data.KnotDataReader;
 import knot.data.KnotDataReader.Segment;
 import knot.data.RectangularKnot;
-import validation.smc.ExactProposalObservationDensityWithoutOvercountingCorrection;
 
 import org.apache.commons.math3.util.Pair;
 
@@ -21,6 +20,7 @@ import briefj.BriefIO;
 import briefj.collections.Counter;
 import common.evaluation.LearningUtils;
 import common.evaluation.MatchingSampleEvaluation;
+import common.experiments.overcounting.ExactProposalObservationDensityWithoutOvercountingCorrection;
 import common.graph.GenericGraphMatchingState;
 import common.graph.GraphMatchingState;
 import common.graph.GraphNode;
