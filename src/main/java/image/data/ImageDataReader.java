@@ -80,7 +80,7 @@ public class ImageDataReader
 			scfs.add(features);
 		}
 
-		// read adjacency
+		// read adjacency matrix
 		for (String line : BriefIO.readLines(new File(dataDir + "/house" + imageNum + ".adj")))
 		{
 			String [] adj = line.split("\\s+");

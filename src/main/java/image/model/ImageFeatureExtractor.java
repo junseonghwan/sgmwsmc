@@ -12,13 +12,29 @@ import common.graph.GenericGraphMatchingState;
 import common.model.CanonicalFeatureExtractor;
 import common.model.GraphFeatureExtractor;
 
+/**
+ * Feature extractor for image matching experiments.
+ * 
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ */
 public class ImageFeatureExtractor implements GraphFeatureExtractor<String, ImageNode>
 {
-	private CanonicalFeatureExtractor<Integer, ImageNode> fe;
+	private CanonicalFeatureExtractor<Integer, ImageNode> fe = null;
 
+	/**
+	 * Construct CanonicalFeatureExtractor using an example.
+	 * 
+	 * @param example
+	 */
 	public ImageFeatureExtractor(ImageNode example) 
 	{
 		fe = CanonicalFeatureExtractor.constructCanonicalFeaturesFromExample(example);
+	}
+	
+	public ImageFeatureExtractor() 
+	{
 	}
 
 	@Override
@@ -27,8 +43,11 @@ public class ImageFeatureExtractor implements GraphFeatureExtractor<String, Imag
 		if (!(matching instanceof BipartiteMatchingState))
 			throw new RuntimeException("At the moment, ImageFeatureExtractor can only work with bipartite matching.");
 
+		if (fe == null)
+			fe = CanonicalFeatureExtractor.constructCanonicalFeaturesFromExample(node);
+
 		BipartiteMatchingState<String, ImageNode> matchingState = (BipartiteMatchingState<String, ImageNode>)matching;
-		
+
 		// compute the canonical features
 		Counter<Integer> scf = fe.extractFeatures(node, decision, null);
 		Counter<String> features = new Counter<>();
@@ -37,7 +56,7 @@ public class ImageFeatureExtractor implements GraphFeatureExtractor<String, Imag
 			features.setCount("scf" + f, scf.getCount(f));
 		}
 
-		// incorporate the quadratic features
+		// incorporate the quadratic (edge) features
 		// 1. iterate over adjacency matrix for node, for adjacent node, check if it is covered.
 		// if already covered but matched with a node not in the adjacency of the otherNode, -1
 		// if already covered and matched with a node in the adjacency of the otherNode, 1
@@ -61,41 +80,10 @@ public class ImageFeatureExtractor implements GraphFeatureExtractor<String, Imag
 			else
 				incorrect += adjacent(coveredNode, adjOther, adj, node2Edge);
 		}
-		/*
-		if (incorrect < -5 && node.getIdx() == otherNode.getIdx()) {
-			System.out.println("num incorrect: " + incorrect);
-			System.out.println(node.toString() + ", " + otherNode.toString());
-			System.out.println(matchingState.toString());
-		}
-		*/
 		features.setCount("adj", incorrect);
 
-		/*
-		Set<ImageNode> p1 = new HashSet<>(matchingState.getVisitedNodes());
-		p1.addAll(matchingState.getUnvisitedNodes());
-		Set<ImageNode> p2 = new HashSet<>(matchingState.getPartition2());
-
-		int total = 0;
-		for (Integer f : adj) {
-			total += adj.getCount(f);
-			total += adjOther.getCount(f);
-		}
-
-		double sum1 = 0.0;
-		for (ImageNode node1 : p1)
-		{
-			sum1 += adjacent(node1, adj, adjOther, node2Edge);
-		}
-		double sum2 = 0.0;
-		for (ImageNode node2 : p2)
-		{
-			sum2 += adjacent(node2, adjOther, adj, node2Edge);
-		}
-
-		features.setCount("adj", (sum1 + sum2)/total);
-		*/
 		return features;
-  }
+	}
 	
 	public int adjacent(ImageNode i, Counter<Integer> adj, Counter<Integer> adjOther, Map<ImageNode, Set<ImageNode>> node2Edge)
 	{
@@ -127,7 +115,7 @@ public class ImageFeatureExtractor implements GraphFeatureExtractor<String, Imag
 	}
 
 	@Override
-  public Counter<String> getDefaultParameters() {
+	public Counter<String> getDefaultParameters() {
 	  Counter<Integer> param = fe.getDefaultParameters();
 	  Counter<String> defaultParam = new Counter<>();
 	  for (Integer f : param)
@@ -136,12 +124,12 @@ public class ImageFeatureExtractor implements GraphFeatureExtractor<String, Imag
 	  }
 	  defaultParam.setCount("adj", 0.0);
 	  return defaultParam;
-  }
+	}
 
 	@Override
-  public int dim() {
+	public int dim() {
 	  return fe.dim() + 1;
-  }
+	}
 
 	@Override
 	public Counter<String> extractFeatures(Set<ImageNode> e,
