@@ -49,7 +49,7 @@ public class KnotMatchingMCEM implements Runnable
 		List<Pair<List<Set<RectangularKnot>>, List<RectangularKnot>>> data = KnotExpUtils.prepareData(dataDirectory, lumbers, false);
 
 		MonteCarloExpectationMaximization<String, RectangularKnot> mcem = new MonteCarloExpectationMaximization<>();
-		KnotDoubletonDecisionModel<RectangularKnot> decisionModel = new KnotDoubletonDecisionModel();
+		KnotDoubletonDecisionModel<RectangularKnot> decisionModel = new KnotDoubletonDecisionModel<>();
 		DistanceSizeFeatureExtractor fe = new DistanceSizeFeatureExtractor();
 		Command<String, RectangularKnot> command = new Command<>(decisionModel, fe);
 		NegativeParameterValueSupportSet supportSet = new NegativeParameterValueSupportSet(command);

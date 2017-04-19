@@ -14,7 +14,6 @@ import common.model.GraphFeatureExtractor;
 import common.model.PairwiseMatchingModel;
 import knot.data.EllipticalKnot;
 import knot.experiments.rectangular.KnotExpUtils;
-import knot.model.SingletonExplicitKnotMatchingDecisionModel;
 import knot.model.features.elliptic.EllipticalKnotFeatureExtractor;
 import briefj.BriefFiles;
 import briefj.BriefIO;

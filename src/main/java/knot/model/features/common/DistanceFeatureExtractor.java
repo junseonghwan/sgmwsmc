@@ -1,4 +1,4 @@
-package knot.model;
+package knot.model.features.common;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -11,6 +11,13 @@ import briefj.collections.Counter;
 import common.graph.GenericGraphMatchingState;
 import common.model.GraphFeatureExtractor;
 
+/**
+ * Feature extractor for distance for two matchings. This is a legacy code that was used before three matching was fully developed.
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ * @param <KnotType>
+ */
 public class DistanceFeatureExtractor<KnotType extends Knot> implements GraphFeatureExtractor<String, KnotType> {
 
 	public static final String TWO_MATCHING_DISTANCE_1 = "TWO_MATCHING_DISTANCE_1";
@@ -75,7 +82,6 @@ public class DistanceFeatureExtractor<KnotType extends Knot> implements GraphFea
 			features.setCount(TWO_MATCHING_DISTANCE_2, Math.sqrt(diffX + diffY + diffZ));
 		}
 
-		// TODO: handle distance features for three matching
 	}
 
 	@Override

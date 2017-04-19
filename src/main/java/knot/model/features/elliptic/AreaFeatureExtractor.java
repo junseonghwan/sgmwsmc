@@ -20,6 +20,12 @@ import common.graph.GenericGraphMatchingState;
 import common.model.GraphFeatureExtractor;
 import knot.data.EllipticalKnot;
 
+/**
+ * Feature to compute the area between a pair of knots.
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ */
 public class AreaFeatureExtractor implements GraphFeatureExtractor<String, EllipticalKnot> 
 {
 	public static final String TWO_MATCHING_AREA_DIFF = "TWO_MATCHING_AREA_DIFF";
@@ -56,10 +62,8 @@ public class AreaFeatureExtractor implements GraphFeatureExtractor<String, Ellip
 			// 2-matching -- compare the area and the number of points
   			double [] a1 = computeArea(node);
   			double [] a2 = null;
-  			double n2 = 0;
   			for (EllipticalKnot otherNode : decision) {
   				a2 = computeArea(otherNode);
-  				n2 = otherNode.getNodeFeatures().getCount("n");
 
   				if (node.getPartitionIdx() % 2 == 0 && otherNode.getPartitionIdx() % 2 == 0)
   					f.setCount(TWO_MATCHING_AREA_DIFF, Math.abs(a1[0] - a2[0])/NORM_CONST);
@@ -132,7 +136,6 @@ public class AreaFeatureExtractor implements GraphFeatureExtractor<String, Ellip
 			double [] a1 = computeArea(d.get(0));
 			EllipticalKnot otherNode = d.get(1);
 			double [] a2 = computeArea(otherNode);
-			double n2 = otherNode.getNodeFeatures().getCount("n");
 			if (a2[0] == 0.0) throw new RuntimeException("Area = 0? Either computation failed or knot detection failed.");
 			if (d.get(0).getPartitionIdx() % 2 == 0 && d.get(1).getPartitionIdx() % 2 == 0)
 				f.setCount(TWO_MATCHING_AREA_DIFF, Math.abs(a1[0] - a2[0])/NORM_CONST);
@@ -176,8 +179,10 @@ public class AreaFeatureExtractor implements GraphFeatureExtractor<String, Ellip
 			double a1 = pairs.get(0).getFirst() + pairs.get(1).getFirst();
 			double a2 = pairs.get(2).getFirst();
 
+			/*
 			double n1 = pairs.get(0).getSecond() + pairs.get(1).getSecond();
 			double n2 = pairs.get(2).getSecond();
+			*/
 
 			f.setCount(THREE_MATCHING_AREA_DIFF, Math.abs(a1 - a2)/NORM_CONST);
 			//f.setCount(NUM_POINTS_DIFF, Math.abs(n1 - n2)/NORM_CONST2);

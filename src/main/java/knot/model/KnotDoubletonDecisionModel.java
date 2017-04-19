@@ -10,6 +10,13 @@ import knot.data.Knot;
 import common.graph.GenericGraphMatchingState;
 import common.model.DoubletonDecisionModel;
 
+/**
+ * Decision model that only support 2-matchings. Legacy code.
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ * @param <NodeType>
+ */
 public class KnotDoubletonDecisionModel<NodeType extends Knot> extends DoubletonDecisionModel<String, NodeType>
 {
 	public static final double H_SPAN = 100.0;

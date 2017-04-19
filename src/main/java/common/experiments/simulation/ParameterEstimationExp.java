@@ -1,4 +1,4 @@
-package knots.experiments.simulation;
+package common.experiments.simulation;
 
 import java.io.File;
 import java.io.FileOutputStream;

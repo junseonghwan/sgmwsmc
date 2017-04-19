@@ -1,4 +1,4 @@
-package knot.model;
+package knot.model.features.common;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -11,6 +11,13 @@ import common.graph.GenericGraphMatchingState;
 import common.model.GraphFeatureExtractor;
 import knot.data.Knot;
 
+/**
+ * Distance based feature extractor.
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ * @param <KnotType>
+ */
 public class ThreeMatchingDistanceFeatureExtractor<KnotType extends Knot> implements GraphFeatureExtractor<String, KnotType>
 {
 	public static final String TWO_MATCHING_DISTANCE_1 = "TWO_MATCHING_DISTANCE_1";

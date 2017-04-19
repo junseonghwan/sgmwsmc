@@ -11,6 +11,12 @@ import knot.data.RectangularKnot;
 import common.graph.GenericGraphMatchingState;
 import common.model.GraphFeatureExtractor;
 
+/**
+ * Extract size feature from RectangularKnot. No longer in use as RectangularKnot type is not used anymore.
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ */
 public class SizeFeatureExtractor implements GraphFeatureExtractor<String, RectangularKnot>
 {
 	public static double MARGIN = 3.0;

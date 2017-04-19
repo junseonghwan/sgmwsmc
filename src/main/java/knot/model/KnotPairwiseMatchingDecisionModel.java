@@ -10,6 +10,14 @@ import common.graph.GenericGraphMatchingState;
 import common.model.PairwiseMatchingModel;
 import knot.data.EllipticalKnot;
 
+/**
+ * Decision model for pairwise decision set formulation.
+ * 
+ * TODO: refer to AOAS paper.
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ */
 public class KnotPairwiseMatchingDecisionModel extends PairwiseMatchingModel<String, EllipticalKnot> {
 
 	@Override

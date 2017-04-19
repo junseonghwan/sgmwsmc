@@ -11,8 +11,13 @@ import briefj.collections.Counter;
 import common.graph.GenericGraphMatchingState;
 import common.model.GraphFeatureExtractor;
 import knot.data.EllipticalKnot;
-import knot.model.ThreeMatchingDistanceFeatureExtractor;
 
+/**
+ * (Experimental) Feature extractor for the knots that share an axis. 
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ */
 public class AxisFeatureExtractor implements GraphFeatureExtractor<String, EllipticalKnot>
 {
 	//public static final String TWO_MATCHING_AXIS_SHARED = "TWO_MATCHING_AXIS_SHARED";

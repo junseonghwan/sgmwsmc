@@ -5,10 +5,16 @@ import java.util.Set;
 
 import briefj.collections.Counter;
 import knot.data.RectangularKnot;
-import knot.model.DistanceFeatureExtractor;
+import knot.model.features.common.DistanceFeatureExtractor;
 import common.graph.GenericGraphMatchingState;
 import common.model.GraphFeatureExtractor;
 
+/**
+ * Feature extractor for RectangularKnot type. This is no longer in use as the knots are represented as ellipse now.
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ */
 public class DistanceSizeFeatureExtractor implements GraphFeatureExtractor<String, RectangularKnot>
 {
 

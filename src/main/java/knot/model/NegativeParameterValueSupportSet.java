@@ -7,6 +7,9 @@ import knot.data.RectangularKnot;
 import common.learning.SupportSet;
 import common.model.Command;
 
+// (Experimental code) Restrict the support of the parameters to be negative 
+// Note: this approach is not flexible.
+// TODO: Develop a more general approach to restricting the support set.
 public class NegativeParameterValueSupportSet implements SupportSet<double []>
 {
 	private Command<String, RectangularKnot> command;
@@ -31,7 +34,7 @@ public class NegativeParameterValueSupportSet implements SupportSet<double []>
 	}
 
 	@Override
-  public void initParam(Random random, double[] w) {
+	public void initParam(Random random, double[] w) {
 		for (int i = 0; i < w.length; i++) {
 			w[i] = -random.nextDouble()*3;
 		}
@@ -39,6 +42,6 @@ public class NegativeParameterValueSupportSet implements SupportSet<double []>
 		int idx2 = command.getIndexer().o2i("TWO_DISTANCE_2");
 		w[idx1] = Uniform.generate(random, w[idx2], 0.0);
 		System.out.println(w[idx1] + ",  " + w[idx2]);
-  }
+	}
 
 }

@@ -6,9 +6,15 @@ import java.util.Set;
 import common.graph.GenericGraphMatchingState;
 import common.model.GraphFeatureExtractor;
 import knot.data.EllipticalKnot;
-import knot.model.ThreeMatchingDistanceFeatureExtractor;
+import knot.model.features.common.ThreeMatchingDistanceFeatureExtractor;
 import briefj.collections.Counter;
 
+/**
+ * Feature extractor for elliptical knots.
+ * 
+ * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
+ *
+ */
 public class EllipticalKnotFeatureExtractor implements GraphFeatureExtractor<String, EllipticalKnot> 
 {
 	private ThreeMatchingDistanceFeatureExtractor<EllipticalKnot> distanceFE = new ThreeMatchingDistanceFeatureExtractor<>();

@@ -1,11 +1,7 @@
-package knots.experiments.simulation;
+package common.experiments.simulation;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
-
-import org.apache.commons.math3.util.Pair;
 
 import knot.experiments.rectangular.KnotExpUtils;
 import common.evaluation.MatchingSampleEvaluation;
@@ -18,6 +14,7 @@ import common.model.PairwiseMatchingModel;
 import briefj.opt.Option;
 import briefj.run.Mains;
 
+// Work in progress: tuning SMC sampler's speed.
 public class SMCSamplerScalabilityExp implements Runnable 
 {
 	@Option public static final int numParticles = 1000;

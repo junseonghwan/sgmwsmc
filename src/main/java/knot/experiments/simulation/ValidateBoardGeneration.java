@@ -42,7 +42,7 @@ import briefj.run.Mains;
  * @author Seong-Hwan Jun (s2jun.uw@gmail.com)
  *
  */
-public class ValidateDataSimulation implements Runnable
+public class ValidateBoardGeneration implements Runnable
 {
 	@Option public static double lambda = 0.1;
 	@Option public static double tol = 1e-6;
@@ -203,7 +203,7 @@ public class ValidateDataSimulation implements Runnable
 
 	public static void main(String[] args) 
 	{
-		Mains.instrumentedRun(args, new ValidateDataSimulation());
+		Mains.instrumentedRun(args, new ValidateBoardGeneration());
 	}
 
 }

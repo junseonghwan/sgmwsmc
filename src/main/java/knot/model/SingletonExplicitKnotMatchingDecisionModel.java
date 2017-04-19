@@ -11,6 +11,8 @@ import common.graph.GraphMatchingState;
 import common.model.DecisionModel;
 import knot.data.EllipticalKnot;
 
+// (Experimental code) allow for bin packing point of view of knot matching.
+// Note: Poor performance.
 public class SingletonExplicitKnotMatchingDecisionModel implements DecisionModel<String, EllipticalKnot>
 {
 	public static int H_SPAN = 100;
