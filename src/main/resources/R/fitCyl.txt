@@ -1,0 +1,17 @@
+X <- matrix( c(10*rep(sin(U),2), 10*rep(cos(U),2), c(rep(-1,20),rep(1,20))), ncol=3)
+
+cylSSE <- function(pars) {
+  errs <- (X[,1] - pars[1])^2 + (X[,2] - pars[2])^2  + (X[,3] - pars[3])^2 - ( (X[,1]-pars[1])*pars[4] + (X[,2]-pars[2])*pars[5] + (X[,3] - pars[3])*pars[6])^2 - pars[7]^2
+  
+  sum( errs^2)
+  
+}
+
+
+eqCond <- function(pars) {
+  pars[4]^2 + pars[5]^2 + pars[6]^2
+  
+}
+
+
+solnp( c(1, 1, 1, 1, 0, 0, 1), cylSSE, eqfun = eqCond, eqB = 1)
