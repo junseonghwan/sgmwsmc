@@ -118,23 +118,21 @@ public class SMCAlgorithm<L, E>
     @SuppressWarnings("unchecked")
     final L[] particles = (L[]) new Object[options.nParticles];
     E curEmission = emissions.get(currentIteration);
-    E oldEmission = (currentIteration >= 1) ? oldEmission = emissions.get(currentIteration-1) : null;
+    //E oldEmission = (currentIteration >= 1) ? oldEmission = emissions.get(currentIteration-1) : null;
 
     BriefParallel.process(options.nParticles, options.nThreads, particleIndex ->
     {
     	L curLatent = null;
-    	L oldLatent = null;
     	if (isInitial) { 
     		curLatent = proposal.sampleInitial(randoms[particleIndex]);
     	} else {
-  			oldLatent = currentPopulation.particles.get(particleIndex);
-  			curLatent = proposal.sampleForwardTransition(randoms[particleIndex], oldLatent);
+  			curLatent = proposal.sampleForwardTransition(randoms[particleIndex], currentPopulation.particles.get(particleIndex));
   		}
 
 	    double logWeight = observationDensity.logDensity(curLatent, curEmission);
-	    double logWeightPrev = observationDensity.logDensity(oldLatent, oldEmission);
-	    double logWeightCorr = observationDensity.logWeightCorrection(curLatent, oldLatent);
-	    if (currentPopulation != null)
+	    double logWeightPrev = observationDensity.logDensity(currentPopulation.particles.get(particleIndex), emissions.get(currentIteration));
+	    double logWeightCorr = observationDensity.logWeightCorrection(curLatent, currentPopulation.particles.get(particleIndex));
+	    if (isInitial)
 	    	logWeight = Math.log(currentPopulation.getNormalizedWeight(particleIndex)) + logWeight - logWeightPrev + logWeightCorr;
 	    else 
 	    	logWeight = logWeight - logWeightPrev + logWeightCorr;
