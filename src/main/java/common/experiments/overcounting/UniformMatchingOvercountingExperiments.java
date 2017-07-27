@@ -33,13 +33,13 @@ public class UniformMatchingOvercountingExperiments implements Runnable
 	@Option
 	public static boolean exactSampling = true;
 	@Option
-	public static int numPartitions = 4;
+	public static int numPartitions = 3;
 	@Option
-	public static int numNodesPerPartitions = 3;
+	public static int numNodesPerPartitions = 2;
 	@Option
 	public static int numReps = 1;
 	@Option
-	public static Random random = new Random(20170208);
+	public static Random random = new Random(20170721);
 	@Option
 	public static String output_file = "output/overcounting/uniform_" + numPartitions + "_" + numNodesPerPartitions + ".csv";
 
@@ -66,7 +66,8 @@ public class UniformMatchingOvercountingExperiments implements Runnable
 		for (int i = 0; i < knots.size(); i++) emissions.add(null);
 
 		SequentialGraphMatchingSampler<String, RectangularKnot> sgm = new SequentialGraphMatchingSampler<String, RectangularKnot>(transitionDensity, observationDensity, emissions, true);
-		sgm.sample(numParticles, numParticles);
+		double logZ = sgm.sample(numParticles, numParticles);
+		System.out.println("logZ: " + logZ);
 
 		// check to see if SMC samples contain state and see if the estimate by the SMC is accurate
 		Counter<GenericGraphMatchingState<String, RectangularKnot>> population = new Counter<>();
@@ -95,7 +96,8 @@ public class UniformMatchingOvercountingExperiments implements Runnable
 	@Override
 	public void run()
 	{
-		final int [] numParticles = {100, 200, 400, 800, 1000, 2000, 4000, 8000, 10000, 20000, 40000, 80000, 100000};
+		//final int [] numParticles = {100, 200, 400, 800, 1000, 2000, 4000, 8000, 10000, 20000, 40000, 80000, 100000};
+		final int [] numParticles = {10000};
 		List<String> lines = new ArrayList<>();
 		for (int i = 0; i < numParticles.length; i++)
 		{

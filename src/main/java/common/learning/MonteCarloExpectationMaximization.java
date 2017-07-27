@@ -115,7 +115,7 @@ public class MonteCarloExpectationMaximization<F, NodeType extends GraphNode<?>>
 		return nllk;
 	}
 
-	public boolean checkConvergence(double [] prev, double [] curr)
+	public static boolean checkConvergence(double [] prev, double [] curr)
 	{
 		double absoluteDiff = 0.0;
 		for (int i = 0; i < prev.length; i++)

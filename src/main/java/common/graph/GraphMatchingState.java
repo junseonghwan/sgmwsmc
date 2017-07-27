@@ -16,6 +16,7 @@ import bayonet.math.NumericalUtils;
 import briefj.collections.Counter;
 import common.model.Command;
 import common.model.DecisionModel;
+import common.model.GraphFeatureExtractor;
 import common.model.MultinomialLogisticModel;
 
 // data type representing a general graph matching state 
@@ -166,6 +167,79 @@ public class GraphMatchingState<F, NodeType extends GraphNode<?>> implements Gen
 		return finalState;
 	}
 	*/
+	
+	public static <F, NodeType extends GraphNode<?>> Pair<Double, Counter<F>> evaluateDecision(Command<F, NodeType> command, Counter<F> params, Pair<List<NodeType>, List<Set<NodeType>>> instance)
+	{
+		DecisionModel<F, NodeType> decisionModel = command.getDecisionModel();
+		GraphFeatureExtractor<F, NodeType> fe = command.getFeatureExtractor();
+		MultinomialLogisticModel<F, NodeType> model = Command.constructModel(fe, params);
+
+		// observation to be evaluated at
+		List<NodeType> permutation = instance.getFirst();
+		List<Set<NodeType>> decisions = instance.getSecond();
+
+		// state to manipulate
+		GraphMatchingState<F, NodeType> state = GraphMatchingState.getInitialState(permutation);
+
+		for (int i = 0; i < permutation.size(); i++)
+		{
+			double logNorm = Double.NEGATIVE_INFINITY;
+			Counter<F> suff = new Counter<>();
+			Counter<F> features = null;
+
+			NodeType node = state.unvisitedNodes.remove(0);
+			state.visitedNodes.add(node);
+
+			// get the decision set
+			List<Set<NodeType>> decisionSet = decisionModel.getDecisions(node, state);
+
+			for (Set<NodeType> d : decisionSet)
+			{
+				// compute the quantities needed for evaluating the log-likelihood and gradient of log-likelihood
+				Pair<Double, Counter<F>> ret = model.logProb(node, d, state);
+				logNorm = NumericalUtils.logAdd(logNorm, ret.getFirst());
+				for (F f : ret.getSecond())
+				{
+					suff.incrementCount(f, Math.exp(ret.getFirst()) * ret.getSecond().getCount(f));
+				}
+
+				// the node may already be contained in an edge
+				Set<NodeType> e = state.nodeToMatching.containsKey(node) ? state.nodeToMatching.get(node) : null;
+				Set<NodeType> newEdge = new HashSet<>();
+				newEdge.add(node);
+				newEdge.addAll(d);
+				if (e != null)
+					newEdge.addAll(e);
+
+				if (d.containsAll(decisions.get(i)))
+				{
+					// update the state:
+					if (e != null)
+						state.matching.remove(e);
+
+					for (NodeType n : newEdge)
+					{
+						state.coveredNodes.add(n);
+						state.nodeToMatching.put(n, newEdge);
+					}
+
+					state.matching.remove(d);
+					state.matching.add(newEdge);
+					state.logDensity += ret.getFirst();
+					features = ret.getSecond();
+				}
+			}
+			
+			state.logDensity -= logNorm;
+			for (F f : suff)
+			{
+				state.logGradient.incrementCount(f, features.getCount(f) - suff.getCount(f)/Math.exp(logNorm));
+			}
+
+		}
+
+		return Pair.create(state.logDensity, state.logGradient);
+	}
 
 	/**
 	 * Execute one move towards the finalState by making a decision on the NodeType = this.unvisitedNodes.remove(0);
