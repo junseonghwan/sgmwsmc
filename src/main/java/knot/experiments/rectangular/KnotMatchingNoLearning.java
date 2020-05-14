@@ -81,7 +81,7 @@ public class KnotMatchingNoLearning implements Runnable
 			// draw samples using SMC
 			long start = System.currentTimeMillis();
 			SequentialGraphMatchingSampler<String, RectangularKnot> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-			smc.sample(numConcreteParticles, maxNumVirtualParticles);
+			smc.sample(random, numConcreteParticles, maxNumVirtualParticles);
 			List<GenericGraphMatchingState<String, RectangularKnot>> samples = smc.getSamples();
 			MatchingSampleEvaluation<String, RectangularKnot> eval = MatchingSampleEvaluation.evaluate(samples, heldOut.getFirst());
 			long end = System.currentTimeMillis();

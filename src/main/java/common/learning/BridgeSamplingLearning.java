@@ -75,7 +75,7 @@ public class BridgeSamplingLearning
 		else
 			smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions, true);
 
-		smc.sample(numParticles, maxNumVirtualParticles);
+		smc.sample(random, numParticles, maxNumVirtualParticles);
 
 		// filter out paths that are not in the finalState
 		List<GenericGraphMatchingState<F, NodeType>> ret = new ArrayList<>();

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.util.Pair;
 
 import com.google.common.collect.Sets;
@@ -25,7 +26,9 @@ public class MatchingSampleEvaluation<F, NodeType extends GraphNode<?>>
 	public double avgAccuracy;
 	public double avgJaccardIndex;
 	public int cardinality;
-	public static boolean verbose = true;
+	public static boolean verbose = false;
+	public double bestLogLik = Double.NEGATIVE_INFINITY;
+	public SummaryStatistics logLiks = new SummaryStatistics();
 	
 	private MatchingSampleEvaluation() { }
 	
@@ -56,22 +59,24 @@ public class MatchingSampleEvaluation<F, NodeType extends GraphNode<?>>
 			int accuracy = computeAccuracy(sample, truth);
 			sum += accuracy;
 
-			if (accuracy > bestAccuracy)
-			{
-				bestAccuracy = accuracy;
-				eval.bestAccuracyMatching = Pair.create(sample, bestAccuracy);
-				if (verbose) {
-  				System.out.println("new best accuracy: " + accuracy + "\n logDensity@new best: " + sample.getLogDensity());
-  				System.out.println(sample.toString());
+				if (accuracy > bestAccuracy)
+				{
+					bestAccuracy = accuracy;
+					eval.bestAccuracyMatching = Pair.create(sample, bestAccuracy);
+					if (verbose) {
+		  				System.out.println("new best accuracy: " + accuracy + "\n logDensity@new best: " + sample.getLogDensity());
+		  				System.out.println(sample.toString());
+					}
 				}
-			}
-			if (sample.getLogDensity() > bestLogLik) {
-				bestLogLik = sample.getLogDensity();
-				eval.bestLogLikMatching = Pair.create(sample, Pair.create(bestLogLik, accuracy));
-				if (verbose) {
-  				System.out.println("new best loglik: " + sample.getLogDensity() + "\n accuracy@new best loglik: " + accuracy);
-  				System.out.println(sample.toString());
+				if (sample.getLogDensity() > bestLogLik) 
+				{
+					eval.bestLogLik = sample.getLogDensity();
+					eval.bestLogLikMatching = Pair.create(sample, Pair.create(bestLogLik, accuracy));
+					if (verbose) {
+		  				System.out.println("new best loglik: " + sample.getLogDensity() + "\n accuracy@new best loglik: " + accuracy);
+		  				System.out.println(sample.toString());
 				}
+				eval.logLiks.addValue(sample.getLogDensity());
 			}
 		}
 		
@@ -91,10 +96,10 @@ public class MatchingSampleEvaluation<F, NodeType extends GraphNode<?>>
 		}
 		eval.consensusMatching = Pair.create(consensus, accuracy);
 		eval.cardinality = truth.size();
-		
+
 		// compute the Jaccard index
 		eval.avgJaccardIndex = jaccardIndex(nodes, truth, samples);
-		
+
 		return eval;
 	}
 	

@@ -1,6 +1,7 @@
 package common.smc.components;
 
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.math3.util.Pair;
 
@@ -41,12 +42,12 @@ public class SequentialGraphMatchingSampler<F, NodeType extends GraphNode<?>>
 		this.useStreamingSMC = useStreaming;
 	}
 
-	public double sample(int numConcreteParticles, int maxNumVirtualParticles)
+	public double sample(Random random, int numConcreteParticles, int maxNumVirtualParticles)
 	{
-		return sample(numConcreteParticles, maxNumVirtualParticles, null);
+		return sample(random, numConcreteParticles, maxNumVirtualParticles, null);
 	}
 
-	public double sample(int numConcreteParticles, int maxNumVirtualParticles, String outputFilePath)
+	public double sample(Random random, int numConcreteParticles, int maxNumVirtualParticles, String outputFilePath)
 	{
 		double logZ = Double.NEGATIVE_INFINITY;
 		// generate matching using sequential Monte Carlo
@@ -54,12 +55,15 @@ public class SequentialGraphMatchingSampler<F, NodeType extends GraphNode<?>>
 			StreamingParticleFilter<GenericGraphMatchingState<F, NodeType>, Object> sbf = new StreamingParticleFilter<>(transitionDensity, observationDensity, emissions);
 			sbf.options.numberOfConcreteParticles = numConcreteParticles;
 			sbf.options.maxNumberOfVirtualParticles = maxNumVirtualParticles;
-			sbf.options.verbose = true;
+			sbf.options.verbose = false;
+			sbf.mainRandom = new Random(random.nextLong());
+			sbf.options.targetedRelativeESS = 1.0;
 			logZ = sbf.sample();
 			samples = sbf.getSamples().samples;
 		} else {
 			SMCOptions options = new SMCOptions();
 			options.nParticles = numConcreteParticles;
+			options.random = new Random(random.nextLong());
 			if (outputFilePath != null)
 				options.loggerFilePath = outputFilePath;
 			SMCAlgorithm<GenericGraphMatchingState<F, NodeType>, Object> smc = new SMCAlgorithm<>(transitionDensity, observationDensity, emissions, options);

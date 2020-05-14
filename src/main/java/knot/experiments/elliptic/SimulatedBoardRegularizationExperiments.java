@@ -50,11 +50,11 @@ public class SimulatedBoardRegularizationExperiments implements Runnable
 
 	public static String [] BOARDS = {};
 	public static List<Double> lambdas = new ArrayList<>();
-	public static double lmin = 0;
-	public static double lmax = 2;
+	public static double lmin = 1;
+	public static double lmax = 1.01;
 	public static double interval = 0.05;
-	@Option public static int K = 5; // K-fold CV 
-	@Option public static int numRep = 5;
+	@Option public static int K = 2; // K-fold CV 
+	@Option public static int numRep = 1;
 	
 	static {
 		double lambda = lmin; 
@@ -145,9 +145,9 @@ public class SimulatedBoardRegularizationExperiments implements Runnable
 						// draw samples using SMC
 						SequentialGraphMatchingSampler<String, EllipticalKnot> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
 						if (segment.getSecond().size() <= 3) {
-							smc.sample(10, maxNumVirtualParticles);
+							smc.sample(rand, 10, maxNumVirtualParticles);
 						} else {
-							smc.sample(numConcreteParticles, maxNumVirtualParticles);
+							smc.sample(rand, numConcreteParticles, maxNumVirtualParticles);
 						}
 						List<GenericGraphMatchingState<String, EllipticalKnot>> samples = smc.getSamples();
 						MatchingSampleEvaluation<String, EllipticalKnot> eval = MatchingSampleEvaluation.evaluate(samples, segment.getFirst());

@@ -83,7 +83,7 @@ public class BipartiteMatchingStateTest
 		for (int i = 0; i < nodes.size(); i++) emissions.add(null);
 		SequentialGraphMatchingSampler<String, SimpleNode> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
 		int numSamples = 10000;
-		double logZ = smc.sample(numSamples, numSamples);
+		double logZ = smc.sample(random, numSamples, numSamples);
 		System.out.println(logZ);
 		Assert.assertTrue(NumericalUtils.isClose(1.0, Math.exp(logZ), 1e-6));
 

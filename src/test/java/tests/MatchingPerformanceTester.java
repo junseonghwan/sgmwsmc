@@ -174,7 +174,7 @@ public class MatchingPerformanceTester implements Runnable
 				System.out.println("Evaluating board " + TESTING_BOARDS[i]);
 				long start = System.currentTimeMillis();
 				SequentialGraphMatchingSampler<String, KnotType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-				smc.sample(numConcreteParticles, maxVirtualParticles, null);
+				smc.sample(random, numConcreteParticles, maxVirtualParticles, null);
 				List<GenericGraphMatchingState<String, KnotType>> samples = smc.getSamples();
 				MatchingSampleEvaluation<String, KnotType> eval = MatchingSampleEvaluation.evaluate(samples, segment.getFirst());
 				long end = System.currentTimeMillis();

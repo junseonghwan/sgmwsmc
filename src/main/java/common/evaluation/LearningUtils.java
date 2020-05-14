@@ -37,11 +37,13 @@ public class LearningUtils
 		SupervisedLearning<F, NodeType> sl = new SupervisedLearning<>();
 		Pair<Double, double[]> ret = sl.MAP(command, instances, lambda, initial, tol, true);
 		//System.out.println("-logDensity: " + ret.getFirst());
+		/*
 		for (int i = 0; i < ret.getSecond().length; i++)
 		{
 			F f = indexer.i2o(i);
-			//System.out.println(f + ": " + ret.getSecond()[i]);
+			System.out.println(f + ": " + ret.getSecond()[i]);
 		}
+		*/
 
 		for (int i = 0; i < ret.getSecond().length; i++)
 		{

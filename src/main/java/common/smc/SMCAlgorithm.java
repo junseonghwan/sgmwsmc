@@ -76,7 +76,7 @@ public class SMCAlgorithm<L, E>
     int nSMCIterations = proposal.numIterations();
     double logZ = 0.0;
     
-    for (int currentIteration = 0; currentIteration < nSMCIterations - 1; currentIteration++)
+    for (int currentIteration = 1; currentIteration < nSMCIterations - 1; currentIteration++)
     {
       currentPopulation = propose(currentPopulation, currentIteration);
       //System.out.println("effective sample size: " + currentPopulation.getRelativeESS());
@@ -130,12 +130,12 @@ public class SMCAlgorithm<L, E>
   		}
 
 	    double logWeight = observationDensity.logDensity(curLatent, curEmission);
-	    double logWeightPrev = observationDensity.logDensity(currentPopulation.particles.get(particleIndex), emissions.get(currentIteration));
-	    double logWeightCorr = observationDensity.logWeightCorrection(curLatent, currentPopulation.particles.get(particleIndex));
-	    if (isInitial)
+	    if (!isInitial)
+	    {
+		    double logWeightPrev = observationDensity.logDensity(currentPopulation.particles.get(particleIndex), emissions.get(currentIteration));
+		    double logWeightCorr = observationDensity.logWeightCorrection(curLatent, currentPopulation.particles.get(particleIndex));
 	    	logWeight = Math.log(currentPopulation.getNormalizedWeight(particleIndex)) + logWeight - logWeightPrev + logWeightCorr;
-	    else 
-	    	logWeight = logWeight - logWeightPrev + logWeightCorr;
+	    }
 	    logWeights[particleIndex] = logWeight;
 	    particles[particleIndex] = curLatent;
     });

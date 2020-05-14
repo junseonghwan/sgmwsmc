@@ -144,7 +144,7 @@ public class ValidateBoardGeneration implements Runnable
 				System.out.println("Evaluating board " + TESTING_BOARDS[i]);
 				long start = System.currentTimeMillis();
 				SequentialGraphMatchingSampler<String, EllipticalKnot> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-				smc.sample(numConcreteParticles, maxNumVirtualParticles);
+				smc.sample(random, numConcreteParticles, maxNumVirtualParticles);
 				List<GenericGraphMatchingState<String, EllipticalKnot>> samples = smc.getSamples();
 				MatchingSampleEvaluation<String, EllipticalKnot> eval = MatchingSampleEvaluation.evaluate(samples, segment.getFirst());
 				long end = System.currentTimeMillis();

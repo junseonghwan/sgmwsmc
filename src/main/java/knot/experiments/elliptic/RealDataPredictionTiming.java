@@ -14,6 +14,11 @@ import knot.model.features.elliptic.EllipticalKnotFeatureExtractor;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.util.Pair;
 
+import briefj.BriefFiles;
+import briefj.collections.Counter;
+import briefj.opt.Option;
+import briefj.run.Mains;
+import briefj.run.Results;
 import common.evaluation.MatchingSampleEvaluation;
 import common.graph.GraphMatchingState;
 import common.learning.SupervisedLearning;
@@ -25,13 +30,8 @@ import common.smc.components.ExactProposalObservationDensity;
 import common.smc.components.GenericMatchingLatentSimulator;
 import common.smc.components.SequentialGraphMatchingSampler;
 import common.util.OutputHelper;
-import briefj.BriefFiles;
-import briefj.collections.Counter;
-import briefj.opt.Option;
-import briefj.run.Mains;
-import briefj.run.Results;
 
-public class RealDataTrainingMCEM implements Runnable 
+public class RealDataPredictionTiming implements Runnable 
 {
 	@Option(required=true) public static boolean useSPF = true;
 	@Option(required=true) public static int targetESS = 100;
@@ -77,7 +77,7 @@ public class RealDataTrainingMCEM implements Runnable
 		System.out.println(BriefFiles.currentDirectory().getAbsolutePath());
 		List<List<Segment>> instances = KnotExpUtils.readSegmentedBoard(fileName, BOARDS, false);
 		List<List<Pair<List<Set<EllipticalKnot>>, List<EllipticalKnot>>>> data = unpack(instances);
-
+		
 		//DecisionModel<String, EllipticalKnot> decisionModel = new KnotPairwiseMatchingDecisionModel();
 		DecisionModel<String, EllipticalKnot> decisionModel = new PairwiseMatchingModel<>();
 		GraphFeatureExtractor<String, EllipticalKnot> fe = new EllipticalKnotFeatureExtractor();
@@ -96,7 +96,7 @@ public class RealDataTrainingMCEM implements Runnable
 					for (String f : phi)
 					{
 						int idx = command.getIndexer().o2i(f);
-						standardizations.get(idx).addValue(phi.getCount(f));
+						standardizations.get(idx).addValue(phi.getCount(f));						
 					}
 				}
 			}
@@ -115,25 +115,26 @@ public class RealDataTrainingMCEM implements Runnable
 		// 2. make a deterministic pass on the segments to match any obvious cases
 		// 3. run SMC on any remaining segments
 
-		double [][] performance = new double[data.size()][6];
+		double [][] performance = new double[data.size()][9];
 		for (int j = 0; j < fe.dim(); j++)
 		{
 			System.out.println("feature " + j + ": " + command.getIndexer().i2o(j) + ", " + standardizations.get(j).getMean() + ", " + standardizations.get(j).getStandardDeviation());
 		}
 
+		// train using all of the data
+		SupervisedLearning<String, EllipticalKnot> sl = new SupervisedLearning<>();
+		double [] initial = new double[fe.dim()];
+		Pair<Double, double[]> ret = sl.MAPviaMCEM(random, 0, command, KnotExpUtils.pack(data), maxEMIter, numConcreteParticles, maxImplicitParticles, lambda, initial, tol, false, useSPF);
+		System.out.println(ret.getFirst());
+		for (double w : ret.getSecond())
+			System.out.print(w + ", ");
+		System.out.println();
+		command.updateModelParameters(ret.getSecond()); // update the params
+
 		for (int i = 0; i < data.size(); i++)
 		{
-			List<Pair<List<Set<EllipticalKnot>>, List<EllipticalKnot>>> datum = data.remove(i);
-			SupervisedLearning<String, EllipticalKnot> sl = new SupervisedLearning<>();
-			double [] initial = new double[fe.dim()];
-			Pair<Double, double[]> ret = sl.MAPviaMCEM(random, i, command, KnotExpUtils.pack(data), maxEMIter, numConcreteParticles, maxImplicitParticles, lambda, initial, tol, false, useSPF);
-			System.out.println(ret.getFirst());
-			for (double w : ret.getSecond())
-				System.out.print(w + ", ");
-			System.out.println();
+			List<Pair<List<Set<EllipticalKnot>>, List<EllipticalKnot>>> datum = data.get(i);
 
-			// evaluate the left out sample
-			command.updateModelParameters(ret.getSecond()); // update the params
 			// compute the total accuracy for this board
 			for (int j = 0; j < datum.size(); j++)
 			{
@@ -146,10 +147,10 @@ public class RealDataTrainingMCEM implements Runnable
 				SequentialGraphMatchingSampler<String, EllipticalKnot> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions, useSPF);
 				long start = System.currentTimeMillis();
 				smc.sample(random, targetESS, 10_000, null);
+				MatchingSampleEvaluation<String, EllipticalKnot> eval = MatchingSampleEvaluation.evaluate(smc.getSamples(), datum.get(j).getFirst());
 				long end = System.currentTimeMillis();
 
 				// output the prediction accuracy
-				MatchingSampleEvaluation<String, EllipticalKnot> eval = MatchingSampleEvaluation.evaluate(smc.getSamples(), datum.get(j).getFirst());
 				int numMatchings = datum.get(j).getFirst().size();
 				performance[i][0] += eval.avgAccuracy;
 				performance[i][1] += eval.bestLogLikMatching.getSecond().getSecond();
@@ -157,10 +158,11 @@ public class RealDataTrainingMCEM implements Runnable
 				performance[i][3] += numMatchings;
 				performance[i][4] += emissions.size();
 				performance[i][5] += (end - start)/1000.0;
+				performance[i][6] += eval.bestLogLik;
+				performance[i][7] += eval.logLiks.getMean();
+				performance[i][8] += eval.logLiks.getStandardDeviation();
 				System.out.println("Eval: " + eval.avgAccuracy + "/" + numMatchings + ", " + eval.bestLogLikMatching.getSecond().getSecond() + "/" + numMatchings + ", " + eval.avgJaccardIndex + "/" + emissions.size());
 			}
-			command.updateModelParameters(initial); // re-set the params
-			data.add(i, datum);
 		}
 
 		File resultsDir = Results.getResultFolder();
@@ -183,8 +185,9 @@ public class RealDataTrainingMCEM implements Runnable
 		return data;
 	}
 
-	public static void main(String [] args)
+	public static void main(String[] args) 
 	{
-		Mains.instrumentedRun(args, new RealDataTrainingMCEM());
+		Mains.instrumentedRun(args, new RealDataPredictionTiming());
 	}
+
 }

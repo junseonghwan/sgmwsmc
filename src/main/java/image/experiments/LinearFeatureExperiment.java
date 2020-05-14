@@ -68,7 +68,7 @@ public class LinearFeatureExperiment implements Runnable
   		GenericMatchingLatentSimulator<Integer, ImageNode> transitionDensity = new GenericMatchingLatentSimulator<>(command, initialState, false, true);
   		ObservationDensity<GenericGraphMatchingState<Integer, ImageNode>, Object> observationDensity = new ExactProposalObservationDensity<>(command);
   		SequentialGraphMatchingSampler<Integer, ImageNode> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-  		smc.sample(1000, 1000);
+  		smc.sample(random, 1000, 1000);
   		MatchingSampleEvaluation<Integer, ImageNode> me = MatchingSampleEvaluation.evaluate(smc.getSamples(), testingInstances.get(i).getFirst());
   		output[i][2] = me.consensusMatching.getSecond();
   		System.out.println(output[i][0] + ", " + output[i][1] + ", " + output[i][2]);

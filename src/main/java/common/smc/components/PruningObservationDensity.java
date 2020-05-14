@@ -35,7 +35,8 @@ public class PruningObservationDensity<F, NodeType extends GraphNode<?>> impleme
 		if (!inSupport(latent.getNode2EdgeView(), targetState))
 			return Double.NEGATIVE_INFINITY;
 		
-		return latent.getLogDensity();
+		//return latent.getLogDensity();
+		return 0.0;
 	}
 	
 	public static <NodeType> boolean inSupport(Map<NodeType, Set<NodeType>> subset, Map<NodeType, Set<NodeType>> superset)
@@ -56,7 +57,8 @@ public class PruningObservationDensity<F, NodeType extends GraphNode<?>> impleme
 		double numParents = command.getDecisionModel().numParents(curLatent);
 		return -Math.log(numParents) - curLatent.getLogForwardProposal();
 		*/
-		return -curLatent.getLogForwardProposal();
+		//return -curLatent.getLogForwardProposal();
+		return 0.0;
 	}
 
 	@Override

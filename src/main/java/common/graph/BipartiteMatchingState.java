@@ -21,6 +21,7 @@ public class BipartiteMatchingState<F, NodeType extends GraphNode<?>> extends Gr
 		//initial.matching = new ArrayList<>();
 		initial.matching = new HashSet<>();
 		initial.coveredNodes = new HashSet<>();
+		initial.decisions = new ArrayList<>();
 		return initial;
 	}
 
@@ -55,6 +56,8 @@ public class BipartiteMatchingState<F, NodeType extends GraphNode<?>> extends Gr
 		copyState.visitedNodes = new ArrayList<>(this.visitedNodes);
 		copyState.unvisitedNodes = new ArrayList<>(this.unvisitedNodes);
 		copyState.partition2 = ImmutableList.copyOf(this.partition2);
+		
+		copyState.decisions = new ArrayList<>(this.decisions);
 
 		copyState.logDensity = this.logDensity;
 		if (this.logGradient != null) {
@@ -76,7 +79,7 @@ public class BipartiteMatchingState<F, NodeType extends GraphNode<?>> extends Gr
 		finalState.visitedNodes = new ArrayList<>(p1InSequence);
 		finalState.unvisitedNodes = new ArrayList<>();
 		finalState.partition2 = ImmutableList.copyOf(p2InSequence);
-
+		
 		finalState.coveredNodes = new HashSet<>();
 		finalState.coveredNodes.addAll(p1InSequence);
 		finalState.coveredNodes.addAll(p2InSequence);

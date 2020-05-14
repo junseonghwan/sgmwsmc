@@ -25,7 +25,7 @@ public class ThreeMatchingDistanceFeatureExtractor<KnotType extends Knot> implem
 	public static final String THREE_MATCHING_DISTANCE_1 = "THREE_MATCHING_DISTANCE_1";
 	public static final String THREE_MATCHING_DISTANCE_2 = "THREE_MATCHING_DISTANCE_2";
 
-	public static double NORMALIZATION_CONSTANT = 300; // TODO: Do this in R as a pre-processing step and remove this constant
+	public static double NORMALIZATION_CONSTANT = 1; // TODO: Do this in R as a pre-processing step and remove this constant
 	public static List<String> featureNames = new ArrayList<>();
 	static {
 		Field [] fields = ThreeMatchingDistanceFeatureExtractor.class.getFields();

@@ -21,6 +21,9 @@ public class EllipticalKnotFeatureExtractor implements GraphFeatureExtractor<Str
 	private AreaFeatureExtractor areaFE = new AreaFeatureExtractor();
 	//private AxisFeatureExtractor axisFE = new AxisFeatureExtractor();
 
+	private Counter<String> mean = null;
+	private Counter<String> sd = null;
+	
 	@Override
 	public Counter<String> extractFeatures(EllipticalKnot node,
 			Set<EllipticalKnot> decision,
@@ -33,9 +36,21 @@ public class EllipticalKnotFeatureExtractor implements GraphFeatureExtractor<Str
 		//Counter<String> axisFeatrues = axisFE.extractFeatures(node, decision, matchingState);
 
 		for (String feature : distanceFeatrues)
-			f.setCount(feature, distanceFeatrues.getCount(feature));
+		{
+			//System.out.println("feature: " + feature + ", " + mean.getCount(feature));
+			if (mean != null && sd != null)
+				f.setCount(feature, (distanceFeatrues.getCount(feature) - mean.getCount(feature))/sd.getCount(feature));
+			else
+				f.setCount(feature, distanceFeatrues.getCount(feature));
+		}
 		for (String feature : areaFeatrues)
-			f.setCount(feature, areaFeatrues.getCount(feature));
+		{
+			//System.out.println("feature: " + feature + ", " + mean.getCount(feature));
+			if (mean != null && sd != null)
+				f.setCount(feature, (areaFeatrues.getCount(feature) - mean.getCount(feature))/sd.getCount(feature));
+			else
+				f.setCount(feature, areaFeatrues.getCount(feature));
+		}
 		/*
 		for (String feature : axisFeatrues)
 			f.setCount(feature, axisFeatrues.getCount(feature));
@@ -90,6 +105,12 @@ public class EllipticalKnotFeatureExtractor implements GraphFeatureExtractor<Str
 	public int dim() {
 		//return distanceFE.dim() + areaFE.dim() + axisFE.dim();
 		return distanceFE.dim() + areaFE.dim();
+	}
+
+	@Override
+	public void setStandardization(Counter<String> mean, Counter<String> sd) {
+		this.mean = mean;
+		this.sd = sd;
 	}
 
 }

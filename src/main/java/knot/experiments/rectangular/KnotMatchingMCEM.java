@@ -87,7 +87,7 @@ public class KnotMatchingMCEM implements Runnable
   			for (int j = 0; j < nodes.size(); j++) emissions.add(null);
   			
   			SequentialGraphMatchingSampler<String, RectangularKnot> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-  			double logZ = smc.sample(numConcreteParticles, maxNumVirtualParticles);
+  			double logZ = smc.sample(random, numConcreteParticles, maxNumVirtualParticles);
   			System.out.println("logZ=" + logZ);
   			MatchingSampleEvaluation<String, RectangularKnot> mse = MatchingSampleEvaluation.evaluate(smc.getSamples(), data.get(idx).getFirst());
   			String outputString = lumbers[idx] + ", " + i + ", " + mse.avgAccuracy + ", " + mse.bestLogLikMatching.getSecond().getSecond() + ", " + mse.consensusMatching.getSecond() + ", " + mse.bestAccuracyMatching.getSecond() + ", " + data.get(idx).getFirst().size();

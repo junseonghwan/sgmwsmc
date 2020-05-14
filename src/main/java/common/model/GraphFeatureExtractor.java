@@ -19,4 +19,8 @@ public interface GraphFeatureExtractor<F, NodeType extends GraphNode<?>>
 	public Counter<F> extractFeatures(Set<NodeType> e, List<Set<NodeType>> matchingState);
 	public Counter<F> getDefaultParameters();
 	public int dim();
+	default void setStandardization(Counter<F> mean, Counter<F> sd)
+	{
+		
+	}
 }

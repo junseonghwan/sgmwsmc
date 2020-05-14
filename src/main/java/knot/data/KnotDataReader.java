@@ -230,7 +230,50 @@ public class KnotDataReader
 			double yaxis = Double.parseDouble(row[13].trim());
 			double zaxis = Double.parseDouble(row[14].trim());
 			double area_over_axis = Double.parseDouble(row[15].trim());
-			int segment = Integer.parseInt(row[16].trim());
+			int segment = 0;
+			if (row.length == 17)
+				segment = Integer.parseInt(row[16].trim());
+
+			EllipticalKnot knot = new EllipticalKnot(pidx, idx, x, y, z, n, varX, varY, cov, boundary_axis0, boundary_axis1, yaxis, zaxis, area_over_axis);
+			if (segments.size() < segment)
+				segments.add(new Segment(segment));
+
+			segments.get(segment-1).addNode(label, knot);
+		}
+
+		return segments;
+	}
+
+	public static List<Segment> readSegmentedTestBoard(String file)
+	{
+		System.out.println("Processing " + file);
+
+		// open the file, read in the data -- each row of the file is a knot
+		List<Segment> segments = new ArrayList<>();
+		int lineno = 0;
+		for (String line : BriefIO.readLines(file))
+		{
+			lineno++;
+			if (lineno == 1) continue;
+			String [] row = line.split(",");
+			int pidx = Integer.parseInt(row[0].trim()); 
+			double x = Double.parseDouble(row[1].trim());
+			double y = Double.parseDouble(row[2].trim());
+			double varX = Double.parseDouble(row[3].trim());
+			double varY = Double.parseDouble(row[4].trim());
+			double cov = Double.parseDouble(row[5].trim());
+			double n = Double.parseDouble(row[6].trim());
+			int idx = Integer.parseInt(row[7].trim());
+			double z = Double.parseDouble(row[8].trim());
+			int boundary_axis0 = Integer.parseInt(row[9].trim());
+			int boundary_axis1 = Integer.parseInt(row[10].trim());
+			double yaxis = Double.parseDouble(row[11].trim());
+			double zaxis = Double.parseDouble(row[12].trim());
+			double area_over_axis = Double.parseDouble(row[13].trim());
+			int label = Integer.parseInt(row[14].trim());
+			int segment = 1;
+//			if (row.length == 15)
+//				segment = Integer.parseInt(row[14].trim());
 
 			EllipticalKnot knot = new EllipticalKnot(pidx, idx, x, y, z, n, varX, varY, cov, boundary_axis0, boundary_axis1, yaxis, zaxis, area_over_axis);
 			if (segments.size() < segment)

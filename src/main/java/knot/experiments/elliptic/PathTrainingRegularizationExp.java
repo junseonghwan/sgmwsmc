@@ -131,7 +131,7 @@ public class PathTrainingRegularizationExp implements Runnable
     
     				List<Object> emissions = new ArrayList<>(segment.getFirst());
     				SequentialGraphMatchingSampler<String, EllipticalKnot> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions, false);
-    				smc.sample(100, 100, null);
+    				smc.sample(rand, 100, 100, null);
     				List<GenericGraphMatchingState<String, EllipticalKnot>> samples = smc.getSamples();
     				MatchingSampleEvaluation<String, EllipticalKnot> eval = MatchingSampleEvaluation.evaluate(samples, segment.getSecond());
     				System.out.println("Maximum likelihood matching: " + eval.bestLogLikMatching.getSecond().getFirst() + ", accuracy: " + eval.bestLogLikMatching.getSecond().getSecond());

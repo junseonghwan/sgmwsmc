@@ -33,7 +33,7 @@ public class AreaFeatureExtractor implements GraphFeatureExtractor<String, Ellip
 	public static final String THREE_MATCHING_AREA_DIFF = "THREE_MATCHING_AREA_DIFF";
 	//public static final String NUM_POINTS_DIFF = "NUM_POINTS_DIFF";
 	
-	public static double NORM_CONST = 1000;
+	public static double NORM_CONST = 1;
 	public static double NORM_CONST2 = 500;
 	public static double CONFIDENCE_LEVEL = 0.975;
 	public static double SQRT_CRITICAL_VALUE;

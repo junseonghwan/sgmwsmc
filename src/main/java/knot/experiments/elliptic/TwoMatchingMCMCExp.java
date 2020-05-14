@@ -171,7 +171,7 @@ public class TwoMatchingMCMCExp implements Runnable {
 
 		// draw samples using SMC
 		SequentialGraphMatchingSampler<String, EllipticalKnot> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-		smc.sample(10, 10, null);
+		smc.sample(random, 10, 10, null);
 		List<GenericGraphMatchingState<String, EllipticalKnot>> samples = smc.getSamples();
 		GraphMatchingState<String, EllipticalKnot> sample = (GraphMatchingState<String, EllipticalKnot>) samples.get(random.nextInt(samples.size()));
 		if (!MatchingSampleEvaluation.validateMatchingSamples(samples, nodes)) {

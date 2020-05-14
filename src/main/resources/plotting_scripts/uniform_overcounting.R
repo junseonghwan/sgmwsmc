@@ -8,4 +8,4 @@ p <- p + theme_bw()
 p <- p + theme(legend.position="none")
 p <- p + geom_errorbar(limits, width=.2, position=position_dodge(width=.9))
 p
-ggsave("Google Drive/Research/papers/probabilistic-matching/paper/figures/overcounting_uniform_4_1.pdf", p)
+ggsave("Google Drive/Research/papers/probabilistic-matching/paper/figures/overcounting_uniform_4_1.pdf", p, width=3.5, height=2.5)

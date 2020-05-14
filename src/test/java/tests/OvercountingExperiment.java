@@ -41,7 +41,7 @@ public class OvercountingExperiment
 		for (int i = 0; i < numNodes; i++) emissions.add(null);
 		SequentialGraphMatchingSampler<String, SimpleNode> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
 		int numParticles = 1000;
-		double logZ = smc.sample(numParticles, numParticles * 10);
+		double logZ = smc.sample(random, numParticles, numParticles * 10);
 		System.out.println("logZ: " + logZ);
 		Map<GenericGraphMatchingState<String, SimpleNode>, Integer> map = new HashMap<>();
 		for (GenericGraphMatchingState<String, SimpleNode> sample : smc.getSamples())

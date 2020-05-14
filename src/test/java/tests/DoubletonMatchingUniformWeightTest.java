@@ -70,7 +70,7 @@ public class DoubletonMatchingUniformWeightTest
 		for (int i = 0; i < knots.size(); i++) emissions.add(null);
 		
 		SequentialGraphMatchingSampler<String, RectangularKnot> sgm = new SequentialGraphMatchingSampler<String, RectangularKnot>(transitionDensity, observationDensity, emissions);
-		double logZ = sgm.sample(numConcreteParticles, numVirtualParticles);
+		double logZ = sgm.sample(random, numConcreteParticles, numVirtualParticles);
 		System.out.println(logZ);
 		double Z = Math.exp(logZ);
 		System.out.println(Z);

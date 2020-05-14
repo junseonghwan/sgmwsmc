@@ -66,7 +66,7 @@ public class UniformMatchingOvercountingExperiments implements Runnable
 		for (int i = 0; i < knots.size(); i++) emissions.add(null);
 
 		SequentialGraphMatchingSampler<String, RectangularKnot> sgm = new SequentialGraphMatchingSampler<String, RectangularKnot>(transitionDensity, observationDensity, emissions, true);
-		double logZ = sgm.sample(numParticles, numParticles);
+		double logZ = sgm.sample(random, numParticles, numParticles);
 		System.out.println("logZ: " + logZ);
 
 		// check to see if SMC samples contain state and see if the estimate by the SMC is accurate

@@ -89,7 +89,7 @@ public class TwoMatchingSMCExp implements Runnable
 			long start = System.currentTimeMillis();
 			LatentSimulator<GenericGraphMatchingState<String, EllipticalKnot>> transitionDensity = new GenericMatchingLatentSimulator<>(command, GraphMatchingState.getInitialState(heldOut.getSecond()), sequentialSampling, exactSampling);
 			SequentialGraphMatchingSampler<String, EllipticalKnot> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions, false);
-			smc.sample(numParticles, numParticles, null);
+			smc.sample(random, numParticles, numParticles, null);
 			long end = System.currentTimeMillis();
 			double time = (end - start)/1000.0;
 			List<GenericGraphMatchingState<String, EllipticalKnot>> samples = smc.getSamples();

@@ -59,7 +59,7 @@ public class UniformPairwiseMatchingTest
 		for (int i = 0; i < knots.size(); i++) emissions.add(null);
 
 		SequentialGraphMatchingSampler<String, RectangularKnot> sgm = new SequentialGraphMatchingSampler<String, RectangularKnot>(transitionDensity, observationDensity, emissions, true);
-		double logZ = sgm.sample(numConcreteParticles, numVirtualParticles);
+		double logZ = sgm.sample(random, numConcreteParticles, numVirtualParticles);
 		double Z = Math.exp(logZ);
 		System.out.println("Zhat=" + Z + ", logZhat=" + logZ);
 		//Assert.assertTrue(NumericalUtils.isClose(Z, 1, 10-6));

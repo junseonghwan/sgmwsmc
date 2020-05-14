@@ -65,7 +65,7 @@ public class SequenceExperiments implements Runnable
 				w[n] = Normal.generate(random, 0.0, sigma_var);
 				System.out.println("w[" + n + "]: " + w[n]);
 			}
-			
+
 			// generate the data
 			List<Pair<List<Set<SimpleNode>>, List<SimpleNode>>> instances = generateData(random, w);
 

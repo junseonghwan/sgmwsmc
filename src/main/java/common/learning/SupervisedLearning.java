@@ -1,5 +1,6 @@
 package common.learning;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Set;
 import java.util.stream.DoubleStream;
 
 import org.apache.commons.math3.exception.MathArithmeticException;
+import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.apache.commons.math3.util.CombinatoricsUtils;
 import org.apache.commons.math3.util.Pair;
 
@@ -17,6 +19,7 @@ import bayonet.opt.DifferentiableFunction;
 import bayonet.opt.LBFGSMinimizer;
 import briefj.BriefParallel;
 import briefj.collections.Counter;
+import briefj.run.Results;
 import common.graph.GenericGraphMatchingState;
 import common.graph.GraphMatchingState;
 import common.graph.GraphNode;
@@ -26,6 +29,7 @@ import common.smc.StreamingParticleFilter.ObservationDensity;
 import common.smc.components.GenericMatchingLatentSimulator;
 import common.smc.components.PruningObservationDensity;
 import common.smc.components.SequentialGraphMatchingSampler;
+import common.util.OutputHelper;
 
 /**
  * Estimate the parameters given a list of matching
@@ -35,10 +39,11 @@ import common.smc.components.SequentialGraphMatchingSampler;
  */
 public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 {
-	public static boolean parallelize = false;
+	public static boolean parallelize = true;
 	public static int numLBFGSIterations = 100;
 
 	public Pair<Double, double[]> MAPviaMCEM(
+			Random random, int repId,
 			Command<F, NodeType> command,
 			List<Pair<List<Set<NodeType>>, List<NodeType>>> instances,
 			int maxIter,
@@ -47,16 +52,8 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 			double lambda, 
 			double [] initial,
 			double tolerance,
-			boolean checkGradient) {
-		
-		// run the gradient checker
-		/*
-		ObjectiveFunction<F, NodeType> objective = new ObjectiveFunction<>(command, instances, lambda);
-
-		if (checkGradient) {
-			gradientChecker(objective, initial);
-		}
-		*/
+			boolean checkGradient,
+			boolean useSPF) {
 
 		// prepare static components, outside of the MC-EM loop
 		List<List<Object>> emissionsList = new ArrayList<>();
@@ -66,37 +63,64 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 			List<Object> emissions = new ArrayList<>();
 			emissions.addAll(instances.get(i).getSecond());
 			emissionsList.add(emissions);
-			
+
 			initialStates.add(GraphMatchingState.getInitialState(instances.get(i).getSecond()));
 		}
-		
+
 		int iter = 0;
 		boolean converged = false;
 
 		LBFGSMinimizer minimizer = new LBFGSMinimizer(numLBFGSIterations);
 		minimizer.verbose = true;
-		
+
 		double [] w = initial;
 		double nllk = 0.0;
 
+		// Declare variables to track MC-EM diagnostic statistics
+		List<double []> paramTrajectory = new ArrayList<>();
+		List<Double> vars = new ArrayList<>();
+		List<Double> means = new ArrayList<>();
+
+		paramTrajectory.add(w);
+
 		while (!converged && iter < maxIter)
 		{
+
 			// generate latent sequence permutation and the decisions using SMC sampler 
 			// TODO: use parallelization
 			ObjectiveFunction2<F, NodeType> objective = new ObjectiveFunction2<>(command);
+			List<ObjectiveFunction2<F, NodeType>> objs = new ArrayList<>();
 			for (int i = 0; i < instances.size(); i++)
 			{
-				List<GenericGraphMatchingState<F, NodeType>> samples = generateSamples(instances.get(i), emissionsList.get(i), initialStates.get(i), command, numConcreteParticles, numImplicitParticles);
+				List<GenericGraphMatchingState<F, NodeType>> samples = null;
+				samples = generateSamples(random, instances.get(i), emissionsList.get(i), initialStates.get(i), command, numConcreteParticles, numImplicitParticles, useSPF);
+
+//				if (iter < 10)
+//					samples = generateSamples(random, instances.get(i), emissionsList.get(i), initialStates.get(i), command, numConcreteParticles, numImplicitParticles, useSPF);
+//				else
+//					samples = generateSamples(random, instances.get(i), emissionsList.get(i), initialStates.get(i), command, numConcreteParticles*5, numImplicitParticles*5, useSPF);
+
 				objective.addInstances(samples);
+				
+				ObjectiveFunction2<F, NodeType> obj2 = new ObjectiveFunction2<>(command);
+				obj2.addInstances(samples);
+				objs.add(obj2);
+			}
+			
+			// run the gradient checker
+			if (checkGradient && iter == 0)
+			{
+				gradientChecker(objective, initial);
 			}
 
-			// construct the objective function object: a simplified one would work here
-			//ObjectiveFunction<F, NodeType> objective = new ObjectiveFunction<>(command, instances);
-
 			// take the samples and find the values of the parameters that minimize the objective function
+			double [] randomW = new double[w.length];
+			for (int i = 0; i < w.length; i++)
+				randomW[i] = random.nextDouble();
+			//double [] wNew = minimizer.minimize(objective, randomW, tolerance);
 			double [] wNew = minimizer.minimize(objective, w, tolerance);
 			double nllkNew = objective.valueAt(wNew);
-			System.out.println("curr nllk: " + nllk);
+			System.out.println("curr nllk: " + nllkNew);
 			System.out.println("wNew: ");
 			for (double ww : wNew)
 				System.out.println(ww);
@@ -105,10 +129,32 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 			converged = checkConvergence(nllk, nllkNew, tolerance);
 			w = wNew;
 			nllk = nllkNew;
+			command.updateModelParameters(w);
+			paramTrajectory.add(w);
+
+			// compute the variance of Monte Carlo estimator for each of the instance
+			double sumOfAvg = 0.0;
+			double sumOfVar = 0.0;
+			for (int i = 0; i < instances.size(); i++)
+			{
+				Pair<Double, Double> meanVar = objs.get(i).computeVariance(w);
+				sumOfAvg += meanVar.getFirst();
+				sumOfVar += meanVar.getSecond();
+			}
+			means.add(sumOfAvg);
+			vars.add(sumOfVar);
+
+			iter++;
 		}
+		
+		File resultsDir = Results.getResultFolder();
+		OutputHelper.writeVector(new File(resultsDir, "rep" + repId + "/sumOfMeans.csv"), means);
+		OutputHelper.writeVector(new File(resultsDir, "rep" + repId + "/sumOfVars.csv"), vars);
+		OutputHelper.writeTableAsCSV(new File(resultsDir, "rep" + repId + "/params.csv"), null, paramTrajectory);
+		
 		return Pair.create(nllk, w);
 	}
-	
+
 	public static boolean checkConvergence(double oldNllk, double newNllk, double tol)
 	{
 		if (Math.abs(oldNllk - newNllk) < tol)
@@ -117,17 +163,19 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 	}
 
 	private List<GenericGraphMatchingState<F, NodeType>> generateSamples(
+			Random random, 
 			Pair<List<Set<NodeType>>, List<NodeType>> instance,
 			List<Object> emissions,
 			GenericGraphMatchingState<F, NodeType> initial,
 			Command<F, NodeType> command,
 			int numConcreteParticles,
-			int numImplicitParticles)
+			int numImplicitParticles,
+			boolean useSPF)
 	{
 		GenericMatchingLatentSimulator<F, NodeType> transitionDensity = new GenericMatchingLatentSimulator<>(command, initial, false, true);
 		ObservationDensity<GenericGraphMatchingState<F, NodeType>, Object> observationDensity = new PruningObservationDensity<>(instance.getFirst());
-		SequentialGraphMatchingSampler<F, NodeType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-		smc.sample(numConcreteParticles, numImplicitParticles);
+		SequentialGraphMatchingSampler<F, NodeType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions, useSPF);
+		smc.sample(random, numConcreteParticles, numImplicitParticles);
 		return smc.getSamples();
 	}
 
@@ -249,10 +297,10 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 			return Pair.create(nllk, w);
 		}
 	
-	public static <F, NodeType extends GraphNode<?>> Pair<Double, Counter<F>> evaluate(Command<F, NodeType> command, Counter<F> params, Pair<List<NodeType>, List<Set<NodeType>>> instance)
+	public static <F, NodeType extends GraphNode<?>> Pair<Double, Counter<F>> evaluate(Command<F, NodeType> command, Counter<F> params, Pair<List<Set<NodeType>>, List<NodeType>> instance)
 	{
 		// compute the log likelihood and the log gradient
-		return GraphMatchingState.evaluateDecision(command, params, instance);		
+		return GraphMatchingState.evaluateDecision(command, params, instance);
 	}
 
 	/**
@@ -329,7 +377,7 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 		}
 	}
 
-	public void gradientChecker(ObjectiveFunction<F, NodeType> objective, double [] initial)
+	public void gradientChecker(DifferentiableFunction objective, double [] initial)
 	{
 		double h = 1e-7;
 		double val1 = objective.valueAt(initial);
@@ -367,7 +415,7 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 	 */
 	public static class ObjectiveFunction2<F, NodeType extends GraphNode<?>> implements DifferentiableFunction
 	{
-		private List<Pair<List<NodeType>, List<Set<NodeType>>>> latentDecisions;
+		private List<Pair<List<Set<NodeType>>, List<NodeType>>> latentDecisions;
 		private Command<F, NodeType> command; 
 		
 		private double logDensity;
@@ -390,10 +438,41 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 			// construct instances to be used for objective function
 			for (GenericGraphMatchingState<F, NodeType> sample : samples)
 			{
-				latentDecisions.add(Pair.create(sample.getVisitedNodes(), sample.getDecisions()));
+				latentDecisions.add(Pair.create(sample.getDecisions(), sample.getVisitedNodes()));
 			}
 		}
 		
+		public Pair<Double, Double> computeVariance(double [] w)
+		{
+			command.updateModelParameters(w);
+			SummaryStatistics stat = new SummaryStatistics();
+			if (parallelize) {
+				int N = latentDecisions.size();
+				List<Counter<F>> results = new ArrayList<>(N);
+				for (int i = 0; i < N; i++) results.add(null);
+
+				BriefParallel.process(N, 8, (i) -> {
+					Pair<Double, Counter<F>> ret = evaluate(command, command.getModelParameters(), latentDecisions.get(i));
+					stat.addValue(ret.getFirst());
+				});
+
+
+			} else {
+
+				// serial version
+				//int i = 0;
+				for (Pair<List<Set<NodeType>>, List<NodeType>> instance : latentDecisions)
+				{
+					//System.out.println("test:" + i);
+					//i++;
+					Pair<Double, Counter<F>> ret = evaluate(command, command.getModelParameters(), instance);
+					stat.addValue(ret.getFirst());
+				}
+			}
+
+			return Pair.create(stat.getMean(), stat.getVariance());
+		}
+
 		private boolean requiresComputation(double [] x)
 		{
 			if (currX == null) return true;
@@ -461,7 +540,7 @@ public class SupervisedLearning<F, NodeType extends GraphNode<?>>
 
 				// serial version
 				//int i = 0;
-				for (Pair<List<NodeType>, List<Set<NodeType>>> instance : latentDecisions)
+				for (Pair<List<Set<NodeType>>, List<NodeType>> instance : latentDecisions)
 				{
 					//System.out.println("test:" + i);
 					//i++;

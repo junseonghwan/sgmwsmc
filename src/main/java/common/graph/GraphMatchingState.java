@@ -168,15 +168,15 @@ public class GraphMatchingState<F, NodeType extends GraphNode<?>> implements Gen
 	}
 	*/
 	
-	public static <F, NodeType extends GraphNode<?>> Pair<Double, Counter<F>> evaluateDecision(Command<F, NodeType> command, Counter<F> params, Pair<List<NodeType>, List<Set<NodeType>>> instance)
+	public static <F, NodeType extends GraphNode<?>> Pair<Double, Counter<F>> evaluateDecision(Command<F, NodeType> command, Counter<F> params, Pair<List<Set<NodeType>>, List<NodeType>> instance)
 	{
 		DecisionModel<F, NodeType> decisionModel = command.getDecisionModel();
 		GraphFeatureExtractor<F, NodeType> fe = command.getFeatureExtractor();
 		MultinomialLogisticModel<F, NodeType> model = Command.constructModel(fe, params);
 
 		// observation to be evaluated at
-		List<NodeType> permutation = instance.getFirst();
-		List<Set<NodeType>> decisions = instance.getSecond();
+		List<NodeType> permutation = instance.getSecond();
+		List<Set<NodeType>> decisions = instance.getFirst();
 
 		// state to manipulate
 		GraphMatchingState<F, NodeType> state = GraphMatchingState.getInitialState(permutation);
@@ -512,7 +512,7 @@ public class GraphMatchingState<F, NodeType extends GraphNode<?>> implements Gen
 
 		// insert the chosen decision
 		this.decisions.add(decisions.get(idx));
-		
+
 		Set<NodeType> edge = decisions.get(idx);
 
 		if (edge.size() == 0) {

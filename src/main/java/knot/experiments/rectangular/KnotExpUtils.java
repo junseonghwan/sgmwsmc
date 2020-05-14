@@ -115,20 +115,45 @@ public class KnotExpUtils
 	public static List<List<Segment>> readSegmentedBoard(String filename, String [] boards, boolean reverseSequence)
 	{
 		List<List<Segment>> instances = new ArrayList<>();
+		int idx = 1;
 		for (String board : boards)
 		{
+			System.out.print(idx++ + ": ");
+			
 			//String dataPath = dataDir + "Board " + lumber + "/knotdetection/matching/enhanced_matching_segmented.csv";
 			String dataPath = board;
-			if (filename != null) 
-				dataPath = board + "/" + filename;
-			else
+			if (filename == null) {
 				dataPath = board + "/enhanced_matching_segmented.csv";
+			} else {
+				if (filename != "") {
+					dataPath = board + "/" + filename;					
+				}
+			}
+				
 			//System.out.println(dataPath);
 			instances.add(KnotDataReader.readSegmentedBoard(dataPath));
 		}
 
 		return instances;
 	}
+	
+	public static List<List<Segment>> readTestBoards(String [] boards, boolean reverseSequence)
+	{
+		List<List<Segment>> instances = new ArrayList<>();
+		int idx = 1;
+		for (String board : boards)
+		{
+			System.out.print(idx++ + ": ");
+			
+			//String dataPath = dataDir + "Board " + lumber + "/knotdetection/matching/enhanced_matching_segmented.csv";
+			String dataPath = board;				
+			//System.out.println(dataPath);
+			instances.add(KnotDataReader.readSegmentedTestBoard(dataPath));
+		}
+
+		return instances;
+	}
+
 
 	public static List<MatchingSampleEvaluation<String, RectangularKnot>> evaluate(Random random, 
 			DecisionModel<String, RectangularKnot> decisionModel, 
@@ -169,7 +194,7 @@ public class KnotExpUtils
 			System.out.println("Evaluating board " + lumbers[i]);
 			long start = System.currentTimeMillis();
 			SequentialGraphMatchingSampler<String, KnotType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-			smc.sample(numConcreteParticles, maxNumVirtualParticles, null);
+			smc.sample(random, numConcreteParticles, maxNumVirtualParticles, null);
 			List<GenericGraphMatchingState<String, KnotType>> samples = smc.getSamples();
 			MatchingSampleEvaluation<String, KnotType> eval = MatchingSampleEvaluation.evaluate(samples, heldOut.getFirst());
 			long end = System.currentTimeMillis();
@@ -232,7 +257,7 @@ public class KnotExpUtils
 			System.out.println("Evaluating board " + lumbers[i]);
 			long start = System.currentTimeMillis();
 			SequentialGraphMatchingSampler<String, KnotType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-			smc.sample(numConcreteParticles, maxNumVirtualParticles, null);
+			smc.sample(random, numConcreteParticles, maxNumVirtualParticles, null);
 			List<GenericGraphMatchingState<String, KnotType>> samples = smc.getSamples();
 			MatchingSampleEvaluation<String, KnotType> eval = MatchingSampleEvaluation.evaluate(samples, heldOut.getFirst());
 			long end = System.currentTimeMillis();
@@ -318,7 +343,7 @@ public class KnotExpUtils
 				System.out.println("Evaluating board " + lumbers[i]);
 				long start = System.currentTimeMillis();
 				SequentialGraphMatchingSampler<String, KnotType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
-				smc.sample(numConcreteParticles, maxNumVirtualParticles, null);
+				smc.sample(random, numConcreteParticles, maxNumVirtualParticles, null);
 				List<GenericGraphMatchingState<String, KnotType>> samples = smc.getSamples();
 				MatchingSampleEvaluation<String, KnotType> eval = MatchingSampleEvaluation.evaluate(samples, segment.getFirst());
 				long end = System.currentTimeMillis();
@@ -408,7 +433,7 @@ public class KnotExpUtils
 				System.out.println("Evaluating board " + boards[i]);
 				long start = System.currentTimeMillis();
 				SequentialGraphMatchingSampler<String, KnotType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions, false);
-				smc.sample(numConcreteParticles, maxNumVirtualParticles, null);
+				smc.sample(random, numConcreteParticles, maxNumVirtualParticles, null);
 				List<GenericGraphMatchingState<String, KnotType>> samples = smc.getSamples();
 				MatchingSampleEvaluation<String, KnotType> eval = MatchingSampleEvaluation.evaluate(samples, segment.getFirst());
 				long end = System.currentTimeMillis();
@@ -518,7 +543,7 @@ public class KnotExpUtils
 
 		// draw samples using SMC
 		SequentialGraphMatchingSampler<F, KnotType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions, useStreaming);
-		smc.sample(numConcreteParticles, maxNumVirtualParticles, outputFilePath);
+		smc.sample(random, numConcreteParticles, maxNumVirtualParticles, outputFilePath);
 		return smc.getSamples();
 	}
 	
@@ -532,7 +557,7 @@ public class KnotExpUtils
 
 		// draw samples using SMC
 		SequentialGraphMatchingSampler<F, KnotType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions, useStreaming);
-		smc.sample(numConcreteParticles, maxVirtualParticles, outputFilePath);
+		smc.sample(random, numConcreteParticles, maxVirtualParticles, outputFilePath);
 		return smc.getSamples();
 	}
 

@@ -7,4 +7,4 @@ d2<-subset(d, I == 10)
 p<-ggplot(d2, aes(N, rmse)) + geom_smooth()
 p<-p+theme_bw()+xlab("Num Nodes per Partition")+ylab("RMSE")
 p
-ggsave(plot = p, filename = "~/Google Drive/Research/papers/probabilistic-matching/paper/figures/known_sequence_rmse.pdf")
+ggsave(plot = p, filename = "~/Google Drive/Research/papers/probabilistic-matching/paper/figures/known_sequence_rmse.pdf", width = 3.5, height = 2.5)

@@ -59,9 +59,9 @@ public class MonteCarloExpectationMaximization<F, NodeType extends GraphNode<?>>
 			// the parameter gets updated inside command so no need to create a new instance each time
 			SequentialGraphMatchingSampler<F, NodeType> smc = new SequentialGraphMatchingSampler<>(transitionDensity, observationDensity, emissions);
 			if (iter < burnIn)
-				smc.sample(numConcreteParticles, maxNumVirtualParticles);
+				smc.sample(random, numConcreteParticles, maxNumVirtualParticles);
 			else
-				smc.sample(numConcreteParticles, maxNumVirtualParticles);
+				smc.sample(random, numConcreteParticles, maxNumVirtualParticles);
 			/*
 			GenericDiscreteLatentSimulator<F, NodeType> transition = new GenericDiscreteLatentSimulator<>(command, initialState, true);
 			DiscreteParticleFilter<GenericGraphMatchingState<F, NodeType>, Object> dpf = new DiscreteParticleFilter<>(transition, observationDensity, emissions);
